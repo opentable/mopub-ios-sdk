@@ -9,12 +9,13 @@ import android.util.Log;
 import com.chartboost.sdk.Chartboost;
 import com.chartboost.sdk.ChartboostDelegate;
 import com.mopub.mobileads.CustomEventInterstitial;
+import com.mopub.mobileads.MoPubErrorCode;
 
 /*
  * Tested with Chartboost SDK 3.1.5.
  */
 public class ChartboostInterstitial extends CustomEventInterstitial {
-    private CustomEventInterstitial.Listener mInterstitialListener;
+    private CustomEventInterstitialListener mInterstitialListener;
 
     /*
      * Note: Chartboost recommends implementing their specific Activity lifecycle callbacks in your
@@ -26,7 +27,7 @@ public class ChartboostInterstitial extends CustomEventInterstitial {
      * Abstract methods from CustomEventInterstitial
      */
     @Override
-    public void loadInterstitial(Context context, CustomEventInterstitial.Listener interstitialListener,
+    public void loadInterstitial(Context context, CustomEventInterstitialListener interstitialListener,
             Map<String, Object> localExtras, Map<String, String> serverExtras) {
         mInterstitialListener = interstitialListener;
         
@@ -38,7 +39,7 @@ public class ChartboostInterstitial extends CustomEventInterstitial {
         }
         
         if (activity == null) {
-            mInterstitialListener.onAdFailed();
+            mInterstitialListener.onInterstitialFailed(MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR);
             return;
         }
 
@@ -62,7 +63,6 @@ public class ChartboostInterstitial extends CustomEventInterstitial {
     public void showInterstitial() {
         Log.d("MoPub", "Showing Chartboost interstitial ad.");
         Chartboost.sharedChartboost().showInterstitial();
-        mInterstitialListener.onShowInterstitial();
     }
     
     @Override
@@ -93,20 +93,20 @@ public class ChartboostInterstitial extends CustomEventInterstitial {
             @Override
             public void didCacheInterstitial(String location) {
                 Log.d("MoPub", "Chartboost interstitial loaded successfully.");
-                mInterstitialListener.onAdLoaded();
+                mInterstitialListener.onInterstitialLoaded();
             }
             
             @Override
             public void didFailToLoadInterstitial(String location) {
                 Log.d("MoPub", "Chartboost interstitial ad failed to load.");
-                mInterstitialListener.onAdFailed();
+                mInterstitialListener.onInterstitialFailed(MoPubErrorCode.NETWORK_NO_FILL);
             }
             
             @Override
             public void didDismissInterstitial(String location) {
                 // Note that this method is fired before didCloseInterstitial and didClickInterstitial.
                 Log.d("MoPub", "Chartboost interstitial ad dismissed.");
-                mInterstitialListener.onDismissInterstitial();
+                mInterstitialListener.onInterstitialDismissed();
             }
             
             @Override
@@ -116,13 +116,13 @@ public class ChartboostInterstitial extends CustomEventInterstitial {
             @Override
             public void didClickInterstitial(String location) {
                 Log.d("MoPub", "Chartboost interstitial ad clicked.");
-                mInterstitialListener.onClick();
+                mInterstitialListener.onInterstitialClicked();
             }
             
             @Override
             public void didShowInterstitial(String location) {
                 Log.d("MoPub", "Chartboost interstitial ad shown.");
-                mInterstitialListener.onShowInterstitial();
+                mInterstitialListener.onInterstitialShown();
             }
             
             /*

@@ -67,7 +67,8 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
             object = (JSONObject) new JSONTokener(mJsonParams).nextValue(); 
             pubId = object.getString("adUnitID");
         } catch (JSONException e) { 
-            if (mAdapterListener != null) mAdapterListener.onNativeInterstitialFailed(this); 
+            if (mAdapterListener != null) mAdapterListener.onNativeInterstitialFailed(this,
+                    MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR); 
             return; 
         }
 
@@ -98,7 +99,7 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
 
     @Override
     public void onDismissScreen(Ad arg0) {
-        // TODO: Forward this message.
+        if (mAdapterListener != null) mAdapterListener.onNativeInterstitialDismissed(this);
     }
 
     @Override
@@ -107,7 +108,8 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
         
         Log.d("MoPub", "Google AdMob interstitial failed. Trying another");
         mHasPrefetchedInterstitial = false;
-        if (mAdapterListener != null) mAdapterListener.onNativeInterstitialFailed(this);
+        if (mAdapterListener != null) mAdapterListener.onNativeInterstitialFailed(this,
+                MoPubErrorCode.NETWORK_NO_FILL);
     }
 
     @Override
@@ -124,7 +126,7 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
 
     @Override
     public void onPresentScreen(Ad arg0) {
-        // Not relevant for interstitials.
+        if (mAdapterListener != null) mAdapterListener.onNativeInterstitialShown(this);
     }
 
     @Override

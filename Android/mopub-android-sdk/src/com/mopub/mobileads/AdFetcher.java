@@ -337,16 +337,36 @@ public class AdFetcher {
                     Log.d("MoPub", "Exception caught while loading ad: " + mException);
                 }
                 
-                mAdView.loadFailUrl();
+                MoPubErrorCode errorCode;
+                switch (mFetchStatus) {
+                    case NOT_SET:
+                        errorCode = MoPubErrorCode.UNSPECIFIED;
+                        break;
+                    case FETCH_CANCELLED:
+                        errorCode = MoPubErrorCode.CANCELLED;
+                        break;
+                    case INVALID_SERVER_RESPONSE_BACKOFF:
+                    case INVALID_SERVER_RESPONSE_NOBACKOFF:
+                        errorCode = MoPubErrorCode.SERVER_ERROR;
+                        break;
+                    case CLEAR_AD_TYPE:
+                    case AD_WARMING_UP:
+                        errorCode = MoPubErrorCode.NO_FILL;
+                        break;
+                    default:
+                        errorCode = MoPubErrorCode.UNSPECIFIED;
+                        break;
+                }
+                
+                mAdView.adDidFail(errorCode);
                 
                 /*
                  * There are numerous reasons for the ad fetch to fail, but only in the specific
                  * case of actual server failure should we exponentially back off. 
                  * 
-                 * Note: When we call AdView's loadFailUrl() from this block, AdView's mFailUrl
-                 * will always be null, forcing a scheduled refresh. Here, we place the exponential
-                 * backoff after AdView's loadFailUrl because we only want to increase refresh times
-                 * after the first failure refresh timer is scheduled, and not before.
+                 * Note: We place the exponential backoff after AdView's adDidFail because we only
+                 * want to increase refresh times after the first failure refresh timer is
+                 * scheduled, and not before.
                  */
                 if (mFetchStatus == FetchStatus.INVALID_SERVER_RESPONSE_BACKOFF) {
                     exponentialBackoff();
@@ -492,7 +512,7 @@ public class AdFetcher {
             
             if (mHeader == null) {
                 Log.i("MoPub", "Couldn't call custom method because the server did not specify one.");
-                mpv.loadFailUrl();
+                mpv.loadFailUrl(MoPubErrorCode.ADAPTER_NOT_FOUND);
                 return;
             }
             
@@ -509,11 +529,11 @@ public class AdFetcher {
             } catch (NoSuchMethodException e) {
                 Log.d("MoPub", "Couldn't perform custom method named " + methodName +
                         "(MoPubView view) because your activity class has no such method");
-                mpv.loadFailUrl();
+                mpv.loadFailUrl(MoPubErrorCode.ADAPTER_NOT_FOUND);
                 return;
             } catch (Exception e) {
                 Log.d("MoPub", "Couldn't perform custom method named " + methodName);
-                mpv.loadFailUrl();
+                mpv.loadFailUrl(MoPubErrorCode.ADAPTER_NOT_FOUND);
                 return;
             }
         }
@@ -546,7 +566,7 @@ public class AdFetcher {
             
             if (mParamsMap == null) {
                 Log.i("MoPub", "Couldn't invoke custom event because the server did not specify one.");
-                moPubView.adFailed();
+                moPubView.loadFailUrl(MoPubErrorCode.ADAPTER_NOT_FOUND);
                 return;
             }
             

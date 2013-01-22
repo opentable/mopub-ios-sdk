@@ -1,5 +1,17 @@
 # MoPub Changelog #
 
+Version 1.11 (March 13, 2013)
+o iOS: Fixed issue causing a crash for legacy custom event methods
+o iOS: Fixed issue causing refresh timer to not be scheduled properly on connection errors
+o iOS: Updated the sample Chartboost custom event to avoid improperly setting the Chartboost delegate to nil in -dealloc
+o Android: Deprecated multiple MoPubView event listener interfaces in favor of a unified MoPubView.BannerAdListener interface
+o Android: Deprecated MoPubInterstitial listener interface in favor of a new MoPubInterstitial.InterstitialAdListener interface
+o Android: Added "shown" and "dismissed" listener methods to MoPubInterstitial.InterstitialAdListener interface
+o Android: Fixed a NullPointerException in MoPubInterstitial for waterfalls containing multiple custom events
+o Android: Fixed a NullPointerException when tracking impressions for native network SDKs
+o Android: Fixed issue causing MoPubView to left-align HTML banners
+o Android: Fixed issue causing incorrect return value for isReady when using MoPubInterstitial and custom events
+
 Version 1.10 (February 13, 2013)
 o iOS: Introduced custom event classes
 o iOS: Fixed issue causing metrics-recording URLs to be incorrect when certain ad sources fail 

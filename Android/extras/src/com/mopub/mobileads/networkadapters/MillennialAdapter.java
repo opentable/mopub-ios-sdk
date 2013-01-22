@@ -94,7 +94,7 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
             adWidth = object.getInt("adWidth");
             adHeight = object.getInt("adHeight");
         } catch (JSONException e) {
-            mMoPubView.loadFailUrl(); 
+            mMoPubView.loadFailUrl(MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR); 
             return; 
         }
         
@@ -156,7 +156,7 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
                 if (isInvalidated()) return;
                 
                 Log.d("MoPub", "Millennial failed. Trying another");
-                mMoPubView.loadFailUrl();
+                mMoPubView.loadFailUrl(MoPubErrorCode.NETWORK_NO_FILL);
             }
         });   
     }

@@ -102,7 +102,7 @@ public class MraidAdapter extends BaseAdapter {
 
         mMraidView.setOnFailureListener(new MraidView.OnFailureListener() {
            public void onFailure(MraidView view) {
-               if (!isInvalidated()) mMoPubView.loadFailUrl();
+               if (!isInvalidated()) mMoPubView.loadFailUrl(MoPubErrorCode.MRAID_LOAD_ERROR);
            } 
         });
     }

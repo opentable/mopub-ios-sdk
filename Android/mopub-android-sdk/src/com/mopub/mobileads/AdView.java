@@ -32,6 +32,22 @@
 
 package com.mopub.mobileads;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -58,19 +74,6 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
 import com.mopub.mobileads.MoPubView.LocationAwareness;
-import com.mopub.mobileads.Utils;
-
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 public class AdView extends WebView {
     public static final String AD_ORIENTATION_PORTRAIT_ONLY = "p";
@@ -189,7 +192,7 @@ public class AdView extends WebView {
                 
                 if (host.equals("finishLoad")) adView.adDidLoad();
                 else if (host.equals("close")) adView.adDidClose();
-                else if (host.equals("failLoad")) adView.loadFailUrl();
+                else if (host.equals("failLoad")) adView.loadFailUrl(MoPubErrorCode.UNSPECIFIED);
                 else if (host.equals("custom")) adView.handleCustomIntentFromUri(uri);
                 return true;
             }
@@ -271,7 +274,6 @@ public class AdView extends WebView {
         if (mLocation == null) mLocation = getLastKnownLocation();
 
         String adUrl = generateAdUrl();
-        mMoPubView.adWillLoad(adUrl);
         loadUrl(adUrl);
     }
 
@@ -543,11 +545,11 @@ public class AdView extends WebView {
         }
     }
 
-    private void adDidFail() {
+    void adDidFail(MoPubErrorCode errorCode) {
         Log.i("MoPub", "Ad failed to load.");
         mIsLoading = false;
         scheduleRefreshTimerIfEnabled();
-        mMoPubView.adFailed();
+        mMoPubView.adFailed(errorCode);
     }
 
     private void adDidClose() {
@@ -603,7 +605,7 @@ public class AdView extends WebView {
 
     @Deprecated
     public void customEventDidFailToLoadAd() {
-        loadFailUrl();
+        loadFailUrl(MoPubErrorCode.UNSPECIFIED);
     }
 
     @Deprecated
@@ -651,14 +653,17 @@ public class AdView extends WebView {
         loadUrl(mUrl);
     }
 
-    public void loadFailUrl() {
+    public void loadFailUrl(MoPubErrorCode errorCode) {
         mIsLoading = false;
+        
+        Log.v("MoPub", "MoPubErrorCode: " + errorCode.toString());
+        
         if (mFailUrl != null) {
             Log.d("MoPub", "Loading failover url: " + mFailUrl);
             loadUrl(mFailUrl);
         } else {
             // No other URLs to try, so signal a failure.
-            adDidFail();
+            adDidFail(MoPubErrorCode.NO_FILL);
         }
     }
     
@@ -668,10 +673,10 @@ public class AdView extends WebView {
     }
 
     protected void trackImpression() {
-        if (mImpressionUrl == null) return;
-        
         new Thread(new Runnable() {
             public void run () {
+                if (mImpressionUrl == null) return;
+                
                 DefaultHttpClient httpclient = new DefaultHttpClient();
                 try {
                     HttpGet httpget = new HttpGet(mImpressionUrl);
@@ -691,10 +696,10 @@ public class AdView extends WebView {
     }
     
     protected void registerClick() {
-        if (mClickthroughUrl == null) return;
-
         new Thread(new Runnable() {
             public void run () {
+                if (mClickthroughUrl == null) return;
+                
                 DefaultHttpClient httpclient = new DefaultHttpClient();
                 HttpGet httpget = new HttpGet(mClickthroughUrl);
                 httpget.addHeader("User-Agent", mUserAgent);

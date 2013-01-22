@@ -1,18 +1,20 @@
 package com.mopub.simpleadsdemo;
 
+import com.mopub.mobileads.MoPubErrorCode;
 import com.mopub.mobileads.MoPubView;
-import com.mopub.simpleadsdemo.R;
+import com.mopub.mobileads.MoPubView.BannerAdListener;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class BannersTab extends Activity {
+public class BannersTab extends Activity implements BannerAdListener {
     private EditText mSearchText;
     private Button mSearchButton;
     private MoPubView mMRectBanner;
@@ -29,6 +31,7 @@ public class BannersTab extends Activity {
 
         mBanner = (MoPubView) findViewById(R.id.bannerview);
         mBanner.setAdUnitId(SimpleAdsDemoConstants.PUB_ID_320x50);
+        mBanner.setBannerAdListener(this);
         mBanner.loadAd();
 
         mSearchText = (EditText) findViewById(R.id.searchtext);
@@ -52,5 +55,30 @@ public class BannersTab extends Activity {
         mBanner.destroy();
         mMRectBanner.destroy();
         super.onDestroy();
+    }
+
+    @Override
+    public void onBannerLoaded(MoPubView banner) {
+        Log.d("MoPub Demo", "Banner loaded callback.");
+    }
+
+    @Override
+    public void onBannerFailed(MoPubView banner, MoPubErrorCode errorCode) {
+        Log.d("MoPub Demo", "Banner failed callback with: " + errorCode.toString());
+    }
+
+    @Override
+    public void onBannerClicked(MoPubView banner) {
+        Log.d("MoPub Demo", "Banner clicked callback.");
+    }
+
+    @Override
+    public void onBannerExpanded(MoPubView banner) {
+        Log.d("MoPub Demo", "Banner expanded callback.");
+    }
+
+    @Override
+    public void onBannerCollapsed(MoPubView banner) {
+        Log.d("MoPub Demo", "Banner collapsed callback.");
     }
 }

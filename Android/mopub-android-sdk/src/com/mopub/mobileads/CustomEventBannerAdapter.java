@@ -5,12 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mopub.mobileads.CustomEventBanner;
+import com.mopub.mobileads.CustomEventBanner.CustomEventBannerListener;
 
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
 
-public class CustomEventBannerAdapter extends BaseAdapter implements CustomEventBanner.Listener {
+public class CustomEventBannerAdapter extends BaseAdapter implements CustomEventBannerListener {
     private Context mContext;
     private CustomEventBanner mCustomEventBanner;
     private Map<String, Object> mLocalExtras = new HashMap<String, Object>();
@@ -36,7 +37,7 @@ public class CustomEventBannerAdapter extends BaseAdapter implements CustomEvent
             mCustomEventBanner = (CustomEventBanner) bannerConstructor.newInstance();
         } catch (Exception exception) {
             Log.d("MoPub", "Couldn't locate or instantiate custom event: " + className + ".");
-            mMoPubView.loadFailUrl();
+            mMoPubView.loadFailUrl(MoPubErrorCode.ADAPTER_NOT_FOUND);
             return;
         }
         
@@ -54,7 +55,7 @@ public class CustomEventBannerAdapter extends BaseAdapter implements CustomEvent
     public void loadAd() {
         if (isInvalidated() || mCustomEventBanner == null) return;
         
-        mCustomEventBanner.loadAd(mContext, this, mLocalExtras, mServerExtras);
+        mCustomEventBanner.loadBanner(mContext, this, mLocalExtras, mServerExtras);
     }
 
     @Override
@@ -71,37 +72,37 @@ public class CustomEventBannerAdapter extends BaseAdapter implements CustomEvent
      * CustomEventBanner.Listener implementation
      */
     @Override
-    public void onAdLoaded() {
+    public void onBannerLoaded(View bannerView) {
         if (isInvalidated()) return;
         
-        if (mMoPubView != null) mMoPubView.nativeAdLoaded();
+        if (mMoPubView != null) {
+            mMoPubView.nativeAdLoaded();
+            mMoPubView.setAdContentView(bannerView);
+            mMoPubView.trackNativeImpression();
+        }
     }
 
     @Override
-    public void onAdFailed() {
+    public void onBannerFailed(MoPubErrorCode errorCode) {
         if (isInvalidated()) return;
         
-        if (mMoPubView != null) mMoPubView.loadFailUrl();
+        if (mMoPubView != null) {
+            if (errorCode == null) {
+                errorCode = MoPubErrorCode.UNSPECIFIED;
+            }
+            mMoPubView.loadFailUrl(errorCode);
+        }
     }
 
     @Override
-    public void onClick() {
+    public void onBannerClicked() {
         if (isInvalidated()) return;
         
         if (mMoPubView != null) mMoPubView.registerClick();
     }
     
     @Override
-    public void setAdContentView(View view) {
-        if (isInvalidated()) return;
-        
-        if (mMoPubView != null) {
-            mMoPubView.setAdContentView(view);
-            mMoPubView.trackNativeImpression();
-        }
-    }
-
-    @Override
     public void onLeaveApplication() {
+        onBannerClicked();
     }
 }

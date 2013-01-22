@@ -51,29 +51,13 @@ import java.util.Collections;
 import java.util.Map;
 
 public class MoPubView extends FrameLayout {
-
-    public interface OnAdWillLoadListener {
-        public void OnAdWillLoad(MoPubView m, String url);
-    }
-
-    public interface OnAdLoadedListener {
-        public void OnAdLoaded(MoPubView m);
-    }
-
-    public interface OnAdFailedListener {
-        public void OnAdFailed(MoPubView m);
-    }
-
-    public interface OnAdClosedListener {
-        public void OnAdClosed(MoPubView m);
-    }
-
-    public interface OnAdClickedListener {
-        public void OnAdClicked(MoPubView m);
-    }
     
-    public interface OnAdPresentedOverlayListener {
-        public void OnAdPresentedOverlay(MoPubView m);
+    public interface BannerAdListener {
+        public void onBannerLoaded(MoPubView banner);
+        public void onBannerFailed(MoPubView banner, MoPubErrorCode errorCode);
+        public void onBannerClicked(MoPubView banner);
+        public void onBannerExpanded(MoPubView banner);
+        public void onBannerCollapsed(MoPubView banner);
     }
     
     public enum LocationAwareness {
@@ -94,7 +78,9 @@ public class MoPubView extends FrameLayout {
     private LocationAwareness mLocationAwareness;
     private int mLocationPrecision;
     private boolean mPreviousAutorefreshSetting = false;
-
+    
+    private BannerAdListener mBannerAdListener;
+    
     private OnAdWillLoadListener mOnAdWillLoadListener;
     private OnAdLoadedListener mOnAdLoadedListener;
     private OnAdFailedListener mOnAdFailedListener;
@@ -227,6 +213,7 @@ public class MoPubView extends FrameLayout {
      */
     public void destroy() {
         unregisterScreenStateBroadcastReceiver();
+        removeAllViews();
         
         if (mAdView != null) {
             mAdView.cleanup();
@@ -239,8 +226,8 @@ public class MoPubView extends FrameLayout {
         }
     }
 
-    protected void loadFailUrl() {
-        if (mAdView != null) mAdView.loadFailUrl();
+    protected void loadFailUrl(MoPubErrorCode errorCode) {
+        if (mAdView != null) mAdView.loadFailUrl(errorCode);
     }
 
     protected void loadNativeSDK(Map<String, String> paramsMap) {
@@ -256,7 +243,7 @@ public class MoPubView extends FrameLayout {
             mAdapter.loadAd();
         } else {
             Log.i("MoPub", "Couldn't load native adapter. Trying next ad...");
-            loadFailUrl();
+            loadFailUrl(MoPubErrorCode.ADAPTER_NOT_FOUND);
         }
     }
     
@@ -276,7 +263,7 @@ public class MoPubView extends FrameLayout {
             mAdapter.loadAd();
         } else {
             Log.i("MoPub", "Couldn't load custom event adapter. Trying next ad...");
-            loadFailUrl();
+            loadFailUrl(MoPubErrorCode.ADAPTER_NOT_FOUND);
         }
     }
 
@@ -314,32 +301,46 @@ public class MoPubView extends FrameLayout {
         }
     }
 
-    protected void adWillLoad(String url) {
-        Log.d("MoPub", "adWillLoad: " + url);
-        if (mOnAdWillLoadListener != null) mOnAdWillLoadListener.OnAdWillLoad(this, url);
-    }
-
     protected void adLoaded() {
         Log.d("MoPub", "adLoaded");
-        if (mOnAdLoadedListener != null) mOnAdLoadedListener.OnAdLoaded(this);
+        
+        if (mBannerAdListener != null) {
+            mBannerAdListener.onBannerLoaded(this);
+        } else if (mOnAdLoadedListener != null) {
+            mOnAdLoadedListener.OnAdLoaded(this);
+        }
     }
 
-    protected void adFailed() {
-        if (mOnAdFailedListener != null) mOnAdFailedListener.OnAdFailed(this);
+    protected void adFailed(MoPubErrorCode errorCode) {
+        if (mBannerAdListener != null) {
+            mBannerAdListener.onBannerFailed(this, errorCode);
+        } else if (mOnAdFailedListener != null) {
+            mOnAdFailedListener.OnAdFailed(this);
+        }
     }
 
     protected void adPresentedOverlay() {
-        if (mOnAdPresentedOverlayListener != null) {
+        if (mBannerAdListener != null) {
+            mBannerAdListener.onBannerExpanded(this);
+        } else if (mOnAdPresentedOverlayListener != null) {
             mOnAdPresentedOverlayListener.OnAdPresentedOverlay(this);
         }
     }
     
     protected void adClosed() {
-        if (mOnAdClosedListener != null) mOnAdClosedListener.OnAdClosed(this);
+        if (mBannerAdListener != null) {
+            mBannerAdListener.onBannerCollapsed(this);
+        } else if (mOnAdClosedListener != null) {
+            mOnAdClosedListener.OnAdClosed(this);
+        }
     }
 
     protected void adClicked() {
-        if (mOnAdClickedListener != null) mOnAdClickedListener.OnAdClicked(this);
+        if (mBannerAdListener != null) {
+            mBannerAdListener.onBannerClicked(this);
+        } else if (mOnAdClickedListener != null) {
+            mOnAdClickedListener.OnAdClicked(this);
+        }
     }
     
     protected void nativeAdLoaded() {
@@ -400,29 +401,13 @@ public class MoPubView extends FrameLayout {
     public Activity getActivity() {
         return (Activity) mContext;
     }
-
-    public void setOnAdWillLoadListener(OnAdWillLoadListener listener) {
-        mOnAdWillLoadListener = listener;
-    }
-
-    public void setOnAdLoadedListener(OnAdLoadedListener listener) {
-        mOnAdLoadedListener = listener;
-    }
-
-    public void setOnAdFailedListener(OnAdFailedListener listener) {
-        mOnAdFailedListener = listener;
-    }
-
-    public void setOnAdPresentedOverlayListener(OnAdPresentedOverlayListener listener) {
-        mOnAdPresentedOverlayListener = listener;
+    
+    public void setBannerAdListener(BannerAdListener listener) {
+        mBannerAdListener = listener;
     }
     
-    public void setOnAdClosedListener(OnAdClosedListener listener) {
-        mOnAdClosedListener = listener;
-    }
-
-    public void setOnAdClickedListener(OnAdClickedListener listener) {
-        mOnAdClickedListener = listener;
+    public BannerAdListener getBannerAdListener() {
+        return mBannerAdListener;
     }
     
     public void setLocationAwareness(LocationAwareness awareness) {
@@ -487,6 +472,72 @@ public class MoPubView extends FrameLayout {
         }
         
         if (mAdView != null) mAdView.forceRefresh();
+    }
+    
+    @Deprecated
+    public interface OnAdWillLoadListener {
+        public void OnAdWillLoad(MoPubView m, String url);
+    }
+    
+    @Deprecated
+    public interface OnAdLoadedListener {
+        public void OnAdLoaded(MoPubView m);
+    }
+    
+    @Deprecated
+    public interface OnAdFailedListener {
+        public void OnAdFailed(MoPubView m);
+    }
+    
+    @Deprecated
+    public interface OnAdClosedListener {
+        public void OnAdClosed(MoPubView m);
+    }
+    
+    @Deprecated
+    public interface OnAdClickedListener {
+        public void OnAdClicked(MoPubView m);
+    }
+    
+    @Deprecated
+    public interface OnAdPresentedOverlayListener {
+        public void OnAdPresentedOverlay(MoPubView m);
+    }
+    
+    @Deprecated
+    public void setOnAdWillLoadListener(OnAdWillLoadListener listener) {
+        mOnAdWillLoadListener = listener;
+    }
+    
+    @Deprecated
+    public void setOnAdLoadedListener(OnAdLoadedListener listener) {
+        mOnAdLoadedListener = listener;
+    }
+    
+    @Deprecated
+    public void setOnAdFailedListener(OnAdFailedListener listener) {
+        mOnAdFailedListener = listener;
+    }
+    
+    @Deprecated
+    public void setOnAdPresentedOverlayListener(OnAdPresentedOverlayListener listener) {
+        mOnAdPresentedOverlayListener = listener;
+    }
+    
+    @Deprecated
+    public void setOnAdClosedListener(OnAdClosedListener listener) {
+        mOnAdClosedListener = listener;
+    }
+    
+    @Deprecated
+    public void setOnAdClickedListener(OnAdClickedListener listener) {
+        mOnAdClickedListener = listener;
+    }
+    
+    @Deprecated
+    protected void adWillLoad(String url) {
+        Log.d("MoPub", "adWillLoad: " + url);
+        if (mOnAdWillLoadListener != null) mOnAdWillLoadListener.OnAdWillLoad(this, url);
     }
     
     @Deprecated

@@ -1,54 +1,80 @@
 package com.mopub.simpleadsdemo;
 
+import com.mopub.mobileads.MoPubErrorCode;
 import com.mopub.mobileads.MoPubInterstitial;
-import com.mopub.mobileads.MoPubInterstitial.MoPubInterstitialListener;
-import com.mopub.simpleadsdemo.R;
+import com.mopub.mobileads.MoPubInterstitial.InterstitialAdListener;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
-public class InterstitialsTab extends Activity implements MoPubInterstitialListener {
+public class InterstitialsTab extends Activity implements InterstitialAdListener {
 
-    MoPubInterstitial interstitial;
+    private MoPubInterstitial mMoPubInterstitial;
     
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.interstitials);
 
-        interstitial = new MoPubInterstitial(this, SimpleAdsDemoConstants.PUB_ID_INTERSTITIAL);
+        mMoPubInterstitial = new MoPubInterstitial(this, SimpleAdsDemoConstants.PUB_ID_INTERSTITIAL);
+        mMoPubInterstitial.setInterstitialAdListener(this);
         
-        Button loadShowButton = (Button) findViewById(R.id.loadshowinterstitial);
-        loadShowButton.setOnClickListener(new OnClickListener() {
+        Button loadInterstitialButton = (Button) findViewById(R.id.load_interstitial);
+        loadInterstitialButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                showInterstitialAd();
+                // Load interstitial.
+                mMoPubInterstitial.load();
             }
         });
-    }
-
-    public void showInterstitialAd() {
-        interstitial.setListener(this);
-        interstitial.load();
-    }
-
-    public void OnInterstitialLoaded() {
-    	if (interstitial.isReady()) interstitial.show();
-    	else {
-    	    Toast.makeText(this, "Interstitial could not be shown. Try reloading.", 
-    	            Toast.LENGTH_SHORT).show();
-    	}
-    }
-
-    public void OnInterstitialFailed() {
-        Toast.makeText(this, "No ad available", Toast.LENGTH_SHORT).show();
+        
+        Button showInterstitialButton = (Button) findViewById(R.id.show_interstitial);
+        showInterstitialButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                // Show interstitial.
+                if (mMoPubInterstitial.isReady()) {
+                    mMoPubInterstitial.show();
+                } else {
+                    logToast("Interstitial was not ready. Try reloading.");
+                }
+            }
+        });
     }
     
     @Override
     protected void onDestroy() {
-        interstitial.destroy();
+        mMoPubInterstitial.destroy();
         super.onDestroy();
+    }
+    
+    /*
+     * MoPubInterstitial.MoPubInterstitialListener implementation
+     */
+    @Override
+    public void onInterstitialLoaded(MoPubInterstitial interstitial) {
+        logToast("Interstitial loaded successfully.");
+    }
+
+    @Override
+    public void onInterstitialFailed(MoPubInterstitial interstitial, MoPubErrorCode errorCode) {
+        logToast("Interstitial failed to load with error: " + errorCode.toString());
+    }
+    
+    @Override
+    public void onInterstitialShown(MoPubInterstitial interstitial) {
+        logToast("Interstitial shown.");
+    }
+
+    @Override
+    public void onInterstitialDismissed(MoPubInterstitial interstitial) {
+        logToast("Interstitial dismissed.");
+    }
+    
+    private void logToast(String message) {
+        Log.d("MoPub Demo", message);
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

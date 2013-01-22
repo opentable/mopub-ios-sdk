@@ -11,9 +11,15 @@
 	android:text="Basic"/>
 
 <Button
-	android:id="@+id/loadshowinterstitial"
+	android:id="@+id/load_interstitial"
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
-	android:text="Load and Show Interstitial"/>
+	android:text="Load Interstitial"/>
+
+<Button
+	android:id="@+id/show_interstitial"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:text="Show Interstitial"/>
 
 </LinearLayout>

@@ -10,19 +10,20 @@ import com.greystripe.sdk.GSAdErrorCode;
 import com.greystripe.sdk.GSAdListener;
 import com.greystripe.sdk.GSMobileBannerAdView;
 import com.mopub.mobileads.CustomEventBanner;
+import com.mopub.mobileads.MoPubErrorCode;
 
 /*
  * Tested with Greystripe SDK 2.1.
  */
 public class GreystripeBanner extends CustomEventBanner implements GSAdListener {
-    private CustomEventBanner.Listener mBannerListener;
+    private CustomEventBannerListener mBannerListener;
     private GSMobileBannerAdView mGreystripeAd;
 
     /*
      * Abstract methods from CustomEventBanner
      */
     @Override
-    public void loadAd(Context context, CustomEventBanner.Listener bannerListener,
+    public void loadBanner(Context context, CustomEventBannerListener bannerListener,
             Map<String, Object> localExtras, Map<String, String> serverExtras) {
         mBannerListener = bannerListener;
         
@@ -48,7 +49,7 @@ public class GreystripeBanner extends CustomEventBanner implements GSAdListener 
     @Override
     public void onAdClickthrough(GSAd greystripeAd) {
         Log.d("MoPub", "Greystripe banner ad clicked.");
-        mBannerListener.onClick();
+        mBannerListener.onBannerClicked();
     }
 
     @Override
@@ -59,17 +60,16 @@ public class GreystripeBanner extends CustomEventBanner implements GSAdListener 
     @Override
     public void onFailedToFetchAd(GSAd greystripeAd, GSAdErrorCode errorCode) {
         Log.d("MoPub", "Greystripe banner ad failed to load.");
-        mBannerListener.onAdFailed();
+        mBannerListener.onBannerFailed(MoPubErrorCode.NETWORK_NO_FILL);
     }
 
     @Override
     public void onFetchedAd(GSAd greystripeAd) {
         if (mGreystripeAd != null & mGreystripeAd.isAdReady()) {
             Log.d("MoPub", "Greystripe banner ad loaded successfully. Showing ad...");
-            mBannerListener.onAdLoaded();
-            mBannerListener.setAdContentView(mGreystripeAd);
+            mBannerListener.onBannerLoaded(mGreystripeAd);
         } else {
-            mBannerListener.onAdFailed();
+            mBannerListener.onBannerFailed(MoPubErrorCode.NETWORK_INVALID_STATE);
         }
     }
 

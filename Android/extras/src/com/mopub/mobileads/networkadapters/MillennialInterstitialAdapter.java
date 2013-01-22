@@ -53,6 +53,11 @@ import android.view.View;
  * 
  * NOTE: If you see build errors relating to a missing implementation of MMAdClickedToNewBrowser,
  * please update your Millennial Media SDK to 4.6.0 or above.
+ *
+ * NOTE: The Millennial Media SDK does not provide any interstitial dismissal callbacks, so the
+ * MoPub SDK will be unable to notify you when Millennial Media interstitials have been dismissed.
+ * However, your Activity will still receive onResume; make sure that any relevant logic in your
+ * dismissal callback is replicated in onResume.
  */
 
 public class MillennialInterstitialAdapter extends BaseInterstitialAdapter implements MMAdListener {
@@ -81,7 +86,8 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
             object = (JSONObject) new JSONTokener(mJsonParams).nextValue(); 
             pubId = object.getString("adUnitID");
         } catch (JSONException e) { 
-            if (mAdapterListener != null) mAdapterListener.onNativeInterstitialFailed(this);
+            if (mAdapterListener != null) mAdapterListener.onNativeInterstitialFailed(this,
+                    MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR);
             return;
         }
 
@@ -143,7 +149,8 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
                 
                 Log.d("MoPub", "Millennial interstitial failed. Trying another.");
                 if (mAdapterListener != null) {
-                    mAdapterListener.onNativeInterstitialFailed(MillennialInterstitialAdapter.this);
+                    mAdapterListener.onNativeInterstitialFailed(MillennialInterstitialAdapter.this,
+                            MoPubErrorCode.NETWORK_NO_FILL);
                 }
             }
         });
@@ -183,6 +190,7 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
                 
                 Log.d("MoPub", "Millennial interstitial launched overlay");
                 if (mAdapterListener != null) {
+                    mAdapterListener.onNativeInterstitialShown(MillennialInterstitialAdapter.this);
                     mAdapterListener.onNativeInterstitialExpired(MillennialInterstitialAdapter.this);
                 }
             }
@@ -202,7 +210,9 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
                 	}
                 	else {
                 		Log.d("MoPub", "Millennial interstitial caching failed. Trying another.");
-                        mAdapterListener.onNativeInterstitialFailed(MillennialInterstitialAdapter.this);
+                        mAdapterListener.onNativeInterstitialFailed(
+                                MillennialInterstitialAdapter.this,
+                                MoPubErrorCode.NETWORK_INVALID_STATE);
                 	}
                 }
             }

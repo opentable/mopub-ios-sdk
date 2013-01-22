@@ -29,8 +29,8 @@ public abstract class CustomEventBanner {
      * MoPub website that you want to associate with a given custom event request. This data may be
      * used to pass dynamic information, such as publisher IDs, without changes in application code.
      */
-    public abstract void loadAd(Context context,
-            CustomEventBanner.Listener customEventBannerListener, Map<String, Object> localExtras,
+    public abstract void loadBanner(Context context,
+            CustomEventBannerListener customEventBannerListener, Map<String, Object> localExtras,
             Map<String, String> serverExtras);
     
     /*
@@ -38,37 +38,32 @@ public abstract class CustomEventBanner {
      */
     public abstract void onInvalidate();
     
-    public interface Listener {
+    public interface CustomEventBannerListener {
         /*
-         * Your custom event subclass must call this method when it successfully loads an ad.
-         * Failure to do so will disrupt the mediation waterfall and cause future ad requests to
-         * stall.
+         * Your custom event subclass must call this method when it successfully loads an ad and
+         * needs to display the provided View. Failure to do so will disrupt the mediation waterfall
+         * and cause future ad requests to stall.
          */
-        public abstract void onAdLoaded();
+        public abstract void onBannerLoaded(View bannerView);
         
         /*
          * Your custom event subclass must call this method when it fails to load an ad.
          * Failure to do so will disrupt the mediation waterfall and cause future ad requests to
          * stall.
          */
-        public abstract void onAdFailed();
+        public abstract void onBannerFailed(MoPubErrorCode errorCode);
         
         /*
          * Your custom event subclass should call this method when a user taps on a banner ad.
          * This method is optional.
          */
-        public abstract void onClick();
+        public abstract void onBannerClicked();
         
         /*
+         * This is an alias for onBannerClicked().
          * Your custom event subclass should call this method if the ad will cause the user to leave
          * the application (e.g. for the Play Store or browser). This method is optional.
          */
         public abstract void onLeaveApplication();
-        
-        /*
-         * Your custom event subclass should call this method when it successfully loads an ad
-         * and needs to display the provided View. This method is optional.
-         */
-        public abstract void setAdContentView(View view);
     }
 }

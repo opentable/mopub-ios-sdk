@@ -31,7 +31,7 @@ public abstract class CustomEventInterstitial {
      * used to pass dynamic information, such as publisher IDs, without changes in application code.
      */
     public abstract void loadInterstitial(Context context,
-            CustomEventInterstitial.Listener customEventInterstitialListener,
+            CustomEventInterstitialListener customEventInterstitialListener,
             Map<String, Object> localExtras,
             Map<String, String> serverExtras);
     
@@ -45,43 +45,45 @@ public abstract class CustomEventInterstitial {
      */
     public abstract void onInvalidate();
     
-    public interface Listener {
+    public interface CustomEventInterstitialListener {
         /*
          * Your custom event subclass must call this method when it successfully loads an ad.
          * Failure to do so will disrupt the mediation waterfall and cause future ad requests to
          * stall.
          */
-        public abstract void onAdLoaded();
+        public abstract void onInterstitialLoaded();
         
         /*
          * Your custom event subclass must call this method when it fails to load an ad.
          * Failure to do so will disrupt the mediation waterfall and cause future ad requests to
          * stall.
          */
-        public abstract void onAdFailed();
+        public abstract void onInterstitialFailed(MoPubErrorCode errorCode);
+        
+        /*
+         * Your custom event subclass should call this method when the interstitial ad is displayed.
+         * This method is optional. However, if you call this method, you should ensure that
+         * onInterstitialDismissed is called at a later time.
+         */
+        public abstract void onInterstitialShown();
         
         /*
          * Your custom event subclass should call this method when a user taps on an interstitial
          * ad. This method is optional.
          */
-        public abstract void onClick();
+        public abstract void onInterstitialClicked();
         
         /*
+         * This is an alias for onInterstitialClicked().
          * Your custom event subclass should call this method if the ad will cause the user to leave
          * the application (e.g. for the Play Store or browser). This method is optional.
          */
         public abstract void onLeaveApplication();
         
         /*
-         * Your custom event subclass should call this method when the interstitial ad is displayed.
-         * This method is optional.
-         */
-        public abstract void onShowInterstitial();
-        
-        /*
          * Your custom event subclass should call this method when the interstitial ad is closed.
          * This method is optional.
          */
-        public abstract void onDismissInterstitial();
+        public abstract void onInterstitialDismissed();
     }
 }

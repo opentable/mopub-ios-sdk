@@ -32,14 +32,35 @@
 
 package com.mopub.mobileads;
 
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 
-import com.mopub.mobileads.MoPubView.OnAdLoadedListener;
+import com.mopub.mobileads.MoPubView.BannerAdListener;
 
-public class MoPubActivity extends BaseActivity implements OnAdLoadedListener {
+public class MoPubActivity extends BaseActivity {
     public static final int MOPUB_ACTIVITY_NO_AD = 1234;
 
+    public static final String ACTION_INTERSTITIAL_SHOW = "com.mopub.action.interstitial.show";
+    public static final String ACTION_INTERSTITIAL_DISMISS = "com.mopub.action.interstitial.dismiss";
+
     private MoPubView mMoPubView;
+    
+    public static final IntentFilter HTML_INTERSTITIAL_INTENT_FILTER;
+    static {
+        HTML_INTERSTITIAL_INTENT_FILTER = new IntentFilter();
+        HTML_INTERSTITIAL_INTENT_FILTER.addAction(ACTION_INTERSTITIAL_SHOW);
+        HTML_INTERSTITIAL_INTENT_FILTER.addAction(ACTION_INTERSTITIAL_DISMISS);
+    }
+    
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        broadcastInterstitialAction(ACTION_INTERSTITIAL_SHOW);
+    }
     
     @Override
     public View getAdView() {
@@ -57,7 +78,17 @@ public class MoPubActivity extends BaseActivity implements OnAdLoadedListener {
         mMoPubView.setKeywords(keywords);
         mMoPubView.setClickthroughUrl(clickthroughUrl);
         mMoPubView.setTimeout(timeout);
-        mMoPubView.setOnAdLoadedListener(this); 
+        
+        mMoPubView.setBannerAdListener(new BannerAdListener() {
+            @Override
+            public void onBannerLoaded(MoPubView banner) {
+                mMoPubView.adAppeared();
+            }
+            public void onBannerFailed(MoPubView banner, MoPubErrorCode errorCode) {}
+            public void onBannerClicked(MoPubView banner) {}
+            public void onBannerExpanded(MoPubView banner) {}
+            public void onBannerCollapsed(MoPubView banner) {}
+        }); 
         
         String source = getIntent().getStringExtra("com.mopub.mobileads.Source");
         if (source != null) {
@@ -70,6 +101,8 @@ public class MoPubActivity extends BaseActivity implements OnAdLoadedListener {
     
     @Override
     protected void onDestroy() {
+        broadcastInterstitialAction(ACTION_INTERSTITIAL_DISMISS);
+        
         mMoPubView.destroy();
         super.onDestroy();
     }
@@ -78,8 +111,9 @@ public class MoPubActivity extends BaseActivity implements OnAdLoadedListener {
         // TODO: Temporary fix. Disables impression tracking by renaming the pixel tracker's URL.
         return source.replaceAll("http://ads.mopub.com/m/imp", "mopub://null");
     }
-
-    public void OnAdLoaded(MoPubView m) {
-        m.adAppeared();
+    
+    private void broadcastInterstitialAction(String action) {
+        Intent intent = new Intent(action);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }

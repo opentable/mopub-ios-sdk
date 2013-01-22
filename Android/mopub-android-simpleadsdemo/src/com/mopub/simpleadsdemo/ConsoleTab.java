@@ -1,10 +1,8 @@
 package com.mopub.simpleadsdemo;
 
+import com.mopub.mobileads.MoPubErrorCode;
 import com.mopub.mobileads.MoPubView;
-import com.mopub.simpleadsdemo.R;
-import com.mopub.mobileads.MoPubView.OnAdFailedListener;
-import com.mopub.mobileads.MoPubView.OnAdLoadedListener;
-import com.mopub.mobileads.MoPubView.OnAdWillLoadListener;
+import com.mopub.mobileads.MoPubView.BannerAdListener;
 
 import android.app.Activity;
 import android.content.Context;
@@ -28,26 +26,29 @@ public class ConsoleTab extends Activity {
 
         mBanner = (MoPubView) findViewById(R.id.bannerview);
         mBanner.setAdUnitId(SimpleAdsDemoConstants.PUB_ID_320x50);
-        mBanner.setOnAdWillLoadListener(new OnAdWillLoadListener() {
-            public void OnAdWillLoad(MoPubView mpv, String url) {
-                clearConsole();
-                outputLine("Calling MoPub with "+url);
-            }
-        });
-        mBanner.setOnAdLoadedListener(new OnAdLoadedListener() {
-            public void OnAdLoaded(MoPubView mpv) {
+        
+        mBanner.setBannerAdListener(new BannerAdListener() {
+            @Override
+            public void onBannerLoaded(MoPubView banner) {
                 outputLine("Ad was loaded. Success.");
-                outputLine("Payload = "+mpv.getResponseString());
+                outputLine("Payload = " + banner.getResponseString());
             }
-        });
-        mBanner.setOnAdFailedListener(new OnAdFailedListener() {
-            public void OnAdFailed(MoPubView mpv) {
+
+            @Override
+            public void onBannerFailed(MoPubView banner, MoPubErrorCode errorCode) {
                 outputLine("Ad did not load.");
-                outputLine("Payload = "+mpv.getResponseString());
+                outputLine("Payload = " + banner.getResponseString());
             }
+
+            public void onBannerClicked(MoPubView banner) {}
+            public void onBannerExpanded(MoPubView banner) {}
+            public void onBannerCollapsed(MoPubView banner) {}
         });
+        
         mConsoleText = (TextView) findViewById(R.id.consoletext);
         mConsoleText.setMovementMethod(new ScrollingMovementMethod());
+        
+        clearConsole();
 
         mSearchText = (EditText) findViewById(R.id.searchtext);
         Button mSearchButton = (Button) findViewById(R.id.searchbutton);

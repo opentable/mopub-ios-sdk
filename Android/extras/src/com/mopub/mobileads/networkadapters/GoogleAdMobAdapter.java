@@ -70,7 +70,7 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
             adWidth = object.getInt("adWidth");
             adHeight = object.getInt("adHeight");
         } catch (JSONException e) {
-            mMoPubView.loadFailUrl(); 
+            mMoPubView.loadFailUrl(MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR); 
             return; 
         }
 
@@ -85,7 +85,7 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
         	adType = AdSize.IAB_LEADERBOARD;
         else {
         	Log.e("MoPub", "Failed to retrieve ad from AdMob native. Unsupported ad size: " + adWidth + "x" + adHeight);
-        	mMoPubView.loadFailUrl();
+        	mMoPubView.loadFailUrl(MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR);
         	return;
         }
         
@@ -122,7 +122,7 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
         if (isInvalidated()) return;
         
         Log.d("MoPub", "Google AdMob failed. Trying another"); 
-        mMoPubView.loadFailUrl();
+        mMoPubView.loadFailUrl(MoPubErrorCode.NETWORK_NO_FILL);
     }
 
     @Override

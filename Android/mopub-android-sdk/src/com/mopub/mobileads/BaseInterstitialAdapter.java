@@ -14,8 +14,10 @@ public abstract class BaseInterstitialAdapter {
     
     public interface BaseInterstitialAdapterListener {
         public void onNativeInterstitialLoaded(BaseInterstitialAdapter adapter);
-        public void onNativeInterstitialFailed(BaseInterstitialAdapter adapter);
+        public void onNativeInterstitialFailed(BaseInterstitialAdapter adapter, MoPubErrorCode errorCode);
+        public void onNativeInterstitialShown(BaseInterstitialAdapter adapter);
         public void onNativeInterstitialClicked(BaseInterstitialAdapter adapter);
+        public void onNativeInterstitialDismissed(BaseInterstitialAdapter adapter);
         public void onNativeInterstitialExpired(BaseInterstitialAdapter adapter);
     }
     
