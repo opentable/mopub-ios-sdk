@@ -5,7 +5,7 @@ Pod::Spec.new do |s|
 # basic meta data
   s.name          = 'MoPubSDK-OpenTable'
   s.version       = version
-  s.platform      = :ios
+  s.platform      = :ios, "5.0"
   s.author        = { 'MoPub' => 'contact@mopub.com' }
   s.license       = { :type => 'New BSD', :file => 'LICENSE'}
   s.homepage      = 'http://github.com/mopub/mopub-client'
