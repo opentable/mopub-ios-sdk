@@ -15,10 +15,10 @@
 
 @interface MPBaseBannerAdapter : NSObject
 {
-    id<MPBannerAdapterDelegate> _delegate;
+    id<MPBannerAdapterDelegate> __weak _delegate;
 }
 
-@property (nonatomic, assign) id<MPBannerAdapterDelegate> delegate;
+@property (nonatomic, weak) id<MPBannerAdapterDelegate> delegate;
 @property (nonatomic, copy) NSURL *impressionTrackingURL;
 @property (nonatomic, copy) NSURL *clickTrackingURL;
 

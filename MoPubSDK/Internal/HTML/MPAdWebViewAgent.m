@@ -24,8 +24,8 @@ NSString * const kMoPubCustomHost = @"custom";
 
 @interface MPAdWebViewAgent ()
 
-@property (nonatomic, retain) MPAdConfiguration *configuration;
-@property (nonatomic, retain) MPAdDestinationDisplayAgent *destinationDisplayAgent;
+@property (nonatomic, strong) MPAdConfiguration *configuration;
+@property (nonatomic, strong) MPAdDestinationDisplayAgent *destinationDisplayAgent;
 @property (nonatomic, assign) BOOL shouldHandleRequests;
 
 - (void)performActionForMoPubSpecificURL:(NSURL *)URL;
@@ -59,11 +59,7 @@ NSString * const kMoPubCustomHost = @"custom";
 
 - (void)dealloc
 {
-    self.configuration = nil;
-    self.destinationDisplayAgent = nil;
     self.view.delegate = nil;
-    self.view = nil;
-    [super dealloc];
 }
 
 #pragma mark - Public
@@ -178,14 +174,19 @@ NSString * const kMoPubCustomHost = @"custom";
     SEL oneArgumentSelector = NSSelectorFromString(oneArgumentSelectorName);
 
     if ([self.customMethodDelegate respondsToSelector:zeroArgumentSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [self.customMethodDelegate performSelector:zeroArgumentSelector];
+#pragma clang diagnostic pop
     } else if ([self.customMethodDelegate respondsToSelector:oneArgumentSelector]) {
         CJSONDeserializer *deserializer = [CJSONDeserializer deserializerWithNullObject:NULL];
         NSData *data = [[queryParameters objectForKey:@"data"] dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dataDictionary = [deserializer deserializeAsDictionary:data error:NULL];
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [self.customMethodDelegate performSelector:oneArgumentSelector
                                         withObject:dataDictionary];
+#pragma clang diagnostic pop
     } else {
         MPLogError(@"Custom method delegate does not implement custom selectors %@ or %@.",
                    selectorName, oneArgumentSelectorName);

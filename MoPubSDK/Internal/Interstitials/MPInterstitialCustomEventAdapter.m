@@ -14,8 +14,8 @@
 
 @interface MPInterstitialCustomEventAdapter ()
 
-@property (nonatomic, retain) MPInterstitialCustomEvent *interstitialCustomEvent;
-@property (nonatomic, retain) MPAdConfiguration *configuration;
+@property (nonatomic, strong) MPInterstitialCustomEvent *interstitialCustomEvent;
+@property (nonatomic, strong) MPAdConfiguration *configuration;
 @property (nonatomic, assign) BOOL hasTrackedImpression;
 @property (nonatomic, assign) BOOL hasTrackedClick;
 
@@ -35,11 +35,8 @@
         [self.interstitialCustomEvent performSelector:@selector(invalidate)];
     }
     self.interstitialCustomEvent.delegate = nil;
-    [[_interstitialCustomEvent retain] autorelease];
-    self.interstitialCustomEvent = nil;
-    self.configuration = nil;
+//    [[_interstitialCustomEvent retain] autorelease];
 
-    [super dealloc];
 }
 
 - (void)getAdWithConfiguration:(MPAdConfiguration *)configuration

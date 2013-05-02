@@ -15,8 +15,8 @@
 
 @interface MPAdView () <MPBannerAdManagerDelegate>
 
-@property (nonatomic, retain) MPBannerAdManager *adManager;
-@property (nonatomic, assign) UIView *adContentView;
+@property (nonatomic, strong) MPBannerAdManager *adManager;
+@property (nonatomic, weak) UIView *adContentView;
 @property (nonatomic, assign) CGSize originalSize;
 @property (nonatomic, assign) MPNativeAdOrientation allowedNativeAdOrientation;
 
@@ -55,23 +55,16 @@
 - (void)dealloc
 {
     self.delegate = nil;
-    self.adUnitId = nil;
-    self.location = nil;
-    self.keywords = nil;
     self.adManager.delegate = nil;
-    self.adManager = nil;
-    [super dealloc];
 }
 
 #pragma mark -
 
 - (void)setAdContentView:(UIView *)view
 {
-    [view retain];
     [self.adContentView removeFromSuperview];
     _adContentView = view;
     [self addSubview:view];
-    [view release];
 }
 
 - (CGSize)adContentViewSize

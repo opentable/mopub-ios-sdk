@@ -12,7 +12,7 @@
 
 @interface MPHTMLInterstitialViewController ()
 
-@property (nonatomic, retain) MPAdWebView *backingView;
+@property (nonatomic, strong) MPAdWebView *backingView;
 
 @end
 
@@ -28,8 +28,6 @@
 - (void)dealloc
 {
     self.backingView.delegate = nil;
-    self.backingView = nil;
-    [super dealloc];
 }
 
 - (void)viewDidLoad

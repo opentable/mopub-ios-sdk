@@ -20,9 +20,9 @@ static NSString * const kMraidURLScheme = @"mraid";
 
 @interface MRAdView ()
 
-@property (nonatomic, retain) NSMutableData *data;
-@property (nonatomic, retain) MRAdViewDisplayController *displayController;
-@property (nonatomic, retain) MPAdDestinationDisplayAgent *destinationDisplayAgent;
+@property (nonatomic, strong) NSMutableData *data;
+@property (nonatomic, strong) MRAdViewDisplayController *displayController;
+@property (nonatomic, strong) MPAdDestinationDisplayAgent *destinationDisplayAgent;
 
 - (void)loadRequest:(NSURLRequest *)request;
 - (void)loadHTMLString:(NSString *)string baseURL:(NSURL *)baseURL;
@@ -98,7 +98,7 @@ static NSString * const kMraidURLScheme = @"mraid";
 
         [self addSubview:_webView];
 
-        _closeButton = [[UIButton buttonWithType:UIButtonTypeCustom] retain];
+        _closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
         _closeButton.frame = CGRectMake(0, 0, 50, 50);
         UIImage *image = [UIImage imageNamed:kExpandableCloseButtonImageName];
         [_closeButton setImage:image forState:UIControlStateNormal];
@@ -120,11 +120,6 @@ static NSString * const kMraidURLScheme = @"mraid";
 
 - (void)dealloc {
     _webView.delegate = nil;
-    [_webView release];
-    [_closeButton release];
-    [_data release];
-    [_displayController release];
-    [super dealloc];
 }
 
 #pragma mark - Public
@@ -250,7 +245,7 @@ static NSString * const kMraidURLScheme = @"mraid";
     [mutableHTML replaceCharactersInRange:headTagRange withString:
      [NSString stringWithFormat:@"<head><script src='%@'></script>", [mraidUrl absoluteString]]];
 
-    return [mutableHTML autorelease];
+    return mutableHTML;
 }
 
 - (void)convertFragmentToFullPayload:(NSMutableString *)fragment {
@@ -264,7 +259,7 @@ static NSString * const kMraidURLScheme = @"mraid";
 }
 
 - (NSString *)executeJavascript:(NSString *)javascript withVarArgs:(va_list)args {
-    NSString *js = [[[NSString alloc] initWithFormat:javascript arguments:args] autorelease];
+    NSString *js = [[NSString alloc] initWithFormat:javascript arguments:args];
     return [_webView stringByEvaluatingJavaScriptFromString:js];
 }
 
@@ -340,7 +335,6 @@ static NSString * const kMraidURLScheme = @"mraid";
 {
     NSString *str = [[NSString alloc] initWithData:self.data encoding:NSUTF8StringEncoding];
     [self loadHTMLString:str baseURL:nil];
-    [str release];
 }
 
 #pragma mark - UIWebViewDelegate

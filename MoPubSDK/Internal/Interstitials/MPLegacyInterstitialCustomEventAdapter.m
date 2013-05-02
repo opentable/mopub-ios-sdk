@@ -27,7 +27,10 @@
 
     SEL customEventSelector = NSSelectorFromString(configuration.customSelectorName);
     if ([self.delegate.interstitialDelegate respondsToSelector:customEventSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [self.delegate.interstitialDelegate performSelector:customEventSelector];
+#pragma clang diagnostic pop
         return;
     }
 
@@ -38,8 +41,11 @@
 
     SEL customEventOneArgumentSelector = NSSelectorFromString(oneArgumentSelectorName);
     if ([self.delegate.interstitialDelegate respondsToSelector:customEventOneArgumentSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [self.delegate.interstitialDelegate performSelector:customEventOneArgumentSelector
                                                  withObject:self.delegate.interstitialAdController];
+#pragma clang diagnostic pop
         return;
     }
 

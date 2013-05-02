@@ -10,10 +10,10 @@
 
 @interface MPURLResolver ()
 
-@property (nonatomic, retain) NSURL *URL;
-@property (nonatomic, assign) id<MPURLResolverDelegate> delegate;
-@property (nonatomic, retain) NSURLConnection *connection;
-@property (nonatomic, retain) NSMutableData *responseData;
+@property (nonatomic, strong) NSURL *URL;
+@property (nonatomic, weak) id<MPURLResolverDelegate> delegate;
+@property (nonatomic, strong) NSURLConnection *connection;
+@property (nonatomic, strong) NSMutableData *responseData;
 
 - (BOOL)handleURL:(NSURL *)URL;
 - (NSString *)storeItemIdentifierForURL:(NSURL *)URL;
@@ -33,17 +33,9 @@
 
 + (MPURLResolver *)resolver
 {
-    return [[[MPURLResolver alloc] init] autorelease];
+    return [[MPURLResolver alloc] init];
 }
 
-- (void)dealloc
-{
-    self.URL = nil;
-    self.connection = nil;
-    self.responseData = nil;
-
-    [super dealloc];
-}
 
 - (void)startResolvingWithURL:(NSURL *)URL delegate:(id<MPURLResolverDelegate>)delegate
 {
@@ -145,7 +137,7 @@
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    NSString *HTMLString = [[[NSString alloc] initWithData:self.responseData encoding:NSUTF8StringEncoding] autorelease];
+    NSString *HTMLString = [[NSString alloc] initWithData:self.responseData encoding:NSUTF8StringEncoding];
     [self.delegate showWebViewWithHTMLString:HTMLString
                                      baseURL:self.URL];
 }

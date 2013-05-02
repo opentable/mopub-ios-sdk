@@ -12,7 +12,7 @@
 @class MRAdView, MPTimer, MRDimmingView;
 
 @interface MRAdViewDisplayController : NSObject <MRAdViewDelegate> {
-    MRAdView *_view;
+    MRAdView *__weak _view;
     MRAdView *_expansionContentView;
     MRAdView *_twoPartExpansionView;
 
@@ -40,7 +40,7 @@
     CGAffineTransform _originalTransform;
 }
 
-@property (nonatomic, assign) MRAdView *view;
+@property (nonatomic, weak) MRAdView *view;
 @property (nonatomic, readonly) MRAdViewState currentState;
 
 - (id)initWithAdView:(MRAdView *)adView

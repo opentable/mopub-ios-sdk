@@ -33,7 +33,7 @@
 @interface MPInstanceProvider ()
 
 @property (nonatomic, copy) NSString *userAgent;
-@property (nonatomic, retain) NSMutableDictionary *singletons;
+@property (nonatomic, strong) NSMutableDictionary *singletons;
 
 @end
 
@@ -61,11 +61,6 @@ static MPInstanceProvider *sharedProvider = nil;
     return self;
 }
 
-- (void)dealloc
-{
-    self.singletons = nil;
-    [super dealloc];
-}
 
 - (id)singletonForClass:(Class)klass provider:(MPSingletonProviderBlock)provider
 {
@@ -88,7 +83,7 @@ static MPInstanceProvider *sharedProvider = nil;
 - (NSString *)userAgent
 {
     if (!_userAgent) {
-        self.userAgent = [[[[UIWebView alloc] init] autorelease] stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+        self.userAgent = [[[UIWebView alloc] init] stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
     }
 
     return _userAgent;
@@ -96,23 +91,23 @@ static MPInstanceProvider *sharedProvider = nil;
 
 - (MPAdServerCommunicator *)buildMPAdServerCommunicatorWithDelegate:(id<MPAdServerCommunicatorDelegate>)delegate
 {
-    return [[(MPAdServerCommunicator *)[MPAdServerCommunicator alloc] initWithDelegate:delegate] autorelease];
+    return [(MPAdServerCommunicator *)[MPAdServerCommunicator alloc] initWithDelegate:delegate];
 }
 
 #pragma mark - Banners
 
 - (MPBannerAdManager *)buildMPBannerAdManagerWithDelegate:(id<MPBannerAdManagerDelegate>)delegate
 {
-    return [[(MPBannerAdManager *)[MPBannerAdManager alloc] initWithDelegate:delegate] autorelease];
+    return [(MPBannerAdManager *)[MPBannerAdManager alloc] initWithDelegate:delegate];
 }
 
 - (MPBaseBannerAdapter *)buildBannerAdapterForConfiguration:(MPAdConfiguration *)configuration
                                                    delegate:(id<MPBannerAdapterDelegate>)delegate
 {
     if (configuration.customEventClass) {
-        return [[(MPBannerCustomEventAdapter *)[MPBannerCustomEventAdapter alloc] initWithDelegate:delegate] autorelease];
+        return [(MPBannerCustomEventAdapter *)[MPBannerCustomEventAdapter alloc] initWithDelegate:delegate];
     } else if (configuration.customSelectorName) {
-        return [[(MPLegacyBannerCustomEventAdapter *)[MPLegacyBannerCustomEventAdapter alloc] initWithDelegate:delegate] autorelease];
+        return [(MPLegacyBannerCustomEventAdapter *)[MPLegacyBannerCustomEventAdapter alloc] initWithDelegate:delegate];
     }
 
     return nil;
@@ -121,7 +116,7 @@ static MPInstanceProvider *sharedProvider = nil;
 - (MPBannerCustomEvent *)buildBannerCustomEventFromCustomClass:(Class)customClass
                                                       delegate:(id<MPBannerCustomEventDelegate>)delegate
 {
-    MPBannerCustomEvent *customEvent = [[[customClass alloc] init] autorelease];
+    MPBannerCustomEvent *customEvent = [[customClass alloc] init];
     customEvent.delegate = delegate;
     return customEvent;
 }
@@ -130,7 +125,7 @@ static MPInstanceProvider *sharedProvider = nil;
 
 - (MPInterstitialAdManager *)buildMPInterstitialAdManagerWithDelegate:(id<MPInterstitialAdManagerDelegate>)delegate
 {
-    return [[(MPInterstitialAdManager *)[MPInterstitialAdManager alloc] initWithDelegate:delegate] autorelease];
+    return [(MPInterstitialAdManager *)[MPInterstitialAdManager alloc] initWithDelegate:delegate];
 }
 
 
@@ -138,9 +133,9 @@ static MPInstanceProvider *sharedProvider = nil;
                                                                delegate:(id<MPInterstitialAdapterDelegate>)delegate
 {
     if (configuration.customEventClass) {
-        return [[(MPInterstitialCustomEventAdapter *)[MPInterstitialCustomEventAdapter alloc] initWithDelegate:delegate] autorelease];
+        return [(MPInterstitialCustomEventAdapter *)[MPInterstitialCustomEventAdapter alloc] initWithDelegate:delegate];
     } else if (configuration.customSelectorName) {
-        return [[(MPLegacyInterstitialCustomEventAdapter *)[MPLegacyInterstitialCustomEventAdapter alloc] initWithDelegate:delegate] autorelease];
+        return [(MPLegacyInterstitialCustomEventAdapter *)[MPLegacyInterstitialCustomEventAdapter alloc] initWithDelegate:delegate];
     }
 
     return nil;
@@ -149,7 +144,7 @@ static MPInstanceProvider *sharedProvider = nil;
 - (MPInterstitialCustomEvent *)buildInterstitialCustomEventFromCustomClass:(Class)customClass
                                                                   delegate:(id<MPInterstitialCustomEventDelegate>)delegate
 {
-    MPInterstitialCustomEvent *customEvent = [[[customClass alloc] init] autorelease];
+    MPInterstitialCustomEvent *customEvent = [[customClass alloc] init];
     if ([customEvent respondsToSelector:@selector(customEventDidUnload)]) {
         MPLogWarn(@"**** Custom Event Class: %@ implements the deprecated -customEventDidUnload method.  This is no longer called.  Use -dealloc for cleanup instead ****", NSStringFromClass(customClass));
     }
@@ -161,7 +156,7 @@ static MPInstanceProvider *sharedProvider = nil;
                                                                         orientationType:(MPInterstitialOrientationType)type
                                                                    customMethodDelegate:(id)customMethodDelegate
 {
-    MPHTMLInterstitialViewController *controller = [[[MPHTMLInterstitialViewController alloc] init] autorelease];
+    MPHTMLInterstitialViewController *controller = [[MPHTMLInterstitialViewController alloc] init];
     controller.delegate = delegate;
     controller.orientationType = type;
     controller.customMethodDelegate = customMethodDelegate;
@@ -171,7 +166,7 @@ static MPInstanceProvider *sharedProvider = nil;
 - (MPMRAIDInterstitialViewController *)buildMPMRAIDInterstitialViewControllerWithDelegate:(id<MPInterstitialViewControllerDelegate>)delegate
                                                                             configuration:(MPAdConfiguration *)configuration
 {
-    MPMRAIDInterstitialViewController *controller = [[[MPMRAIDInterstitialViewController alloc] initWithAdConfiguration:configuration] autorelease];
+    MPMRAIDInterstitialViewController *controller = [[MPMRAIDInterstitialViewController alloc] initWithAdConfiguration:configuration];
     controller.delegate = delegate;
     return controller;
 }
@@ -180,14 +175,14 @@ static MPInstanceProvider *sharedProvider = nil;
 
 - (MPAdWebView *)buildMPAdWebViewWithFrame:(CGRect)frame delegate:(id<UIWebViewDelegate>)delegate
 {
-    MPAdWebView *webView = [[[MPAdWebView alloc] initWithFrame:frame] autorelease];
+    MPAdWebView *webView = [[MPAdWebView alloc] initWithFrame:frame];
     webView.delegate = delegate;
     return webView;
 }
 
 - (MPAdWebViewAgent *)buildMPAdWebViewAgentWithAdWebViewFrame:(CGRect)frame delegate:(id<MPAdWebViewAgentDelegate>)delegate customMethodDelegate:(id)customMethodDelegate
 {
-    return [[[MPAdWebViewAgent alloc] initWithAdWebViewFrame:frame delegate:delegate customMethodDelegate:customMethodDelegate] autorelease];
+    return [[MPAdWebViewAgent alloc] initWithAdWebViewFrame:frame delegate:delegate customMethodDelegate:customMethodDelegate];
 }
 
 #pragma mark - URL Handling
@@ -220,7 +215,7 @@ static MPInstanceProvider *sharedProvider = nil;
 
 - (CTCarrier *)buildCTCarrier;
 {
-    CTTelephonyNetworkInfo *networkInfo = [[[CTTelephonyNetworkInfo alloc] init] autorelease];
+    CTTelephonyNetworkInfo *networkInfo = [[CTTelephonyNetworkInfo alloc] init];
     return networkInfo.subscriberCellularProvider;
 }
 

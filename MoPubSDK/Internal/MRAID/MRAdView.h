@@ -35,7 +35,7 @@ typedef NSUInteger MRAdViewCloseButtonStyle;
 
 @interface MRAdView : UIView <UIWebViewDelegate, MPAdDestinationDisplayAgentDelegate> {
     // This view's delegate object.
-    id<MRAdViewDelegate> _delegate;
+    id<MRAdViewDelegate> __weak _delegate;
 
     // The underlying webview.
     UIWebView *_webView;
@@ -71,7 +71,7 @@ typedef NSUInteger MRAdViewCloseButtonStyle;
     MRAdViewPlacementType _placementType;
 }
 
-@property (nonatomic, assign) id<MRAdViewDelegate> delegate;
+@property (nonatomic, weak) id<MRAdViewDelegate> delegate;
 @property (nonatomic, assign) BOOL usesCustomCloseButton;
 @property (nonatomic, assign) BOOL expanded;
 

@@ -12,9 +12,9 @@
 
 @interface MPAdDestinationDisplayAgent ()
 
-@property (nonatomic, retain) MPURLResolver *resolver;
+@property (nonatomic, strong) MPURLResolver *resolver;
 @property (nonatomic, assign) BOOL inUse;
-@property (nonatomic, assign) id<MPAdDestinationDisplayAgentDelegate> delegate;
+@property (nonatomic, weak) id<MPAdDestinationDisplayAgentDelegate> delegate;
 
 - (void)presentStoreKitControllerWithItemIdentifier:(NSString *)identifier fallbackURL:(NSURL *)URL;
 - (void)hideOverlay;
@@ -30,17 +30,12 @@
 
 + (MPAdDestinationDisplayAgent *)agentWithDelegate:(id<MPAdDestinationDisplayAgentDelegate>)delegate
 {
-    MPAdDestinationDisplayAgent *agent = [[[MPAdDestinationDisplayAgent alloc] init] autorelease];
+    MPAdDestinationDisplayAgent *agent = [[MPAdDestinationDisplayAgent alloc] init];
     agent.delegate = delegate;
     agent.resolver = [[MPInstanceProvider sharedProvider] buildMPURLResolver];
     return agent;
 }
 
-- (void)dealloc
-{
-    self.resolver = nil;
-    [super dealloc];
-}
 
 - (void)displayDestinationForURL:(NSURL *)URL
 {
@@ -61,9 +56,9 @@
 {
     [self hideOverlay];
 
-    MPAdBrowserController *browser = [[[MPAdBrowserController alloc] initWithURL:URL
+    MPAdBrowserController *browser = [[MPAdBrowserController alloc] initWithURL:URL
                                                                       HTMLString:HTMLString
-                                                                        delegate:self] autorelease];
+                                                                        delegate:self];
     browser.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
     [[self.delegate viewControllerForPresentingModalView] mp_presentModalViewController:browser
                                                                                animated:MP_ANIMATED];

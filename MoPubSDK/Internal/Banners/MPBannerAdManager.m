@@ -17,12 +17,12 @@
 
 @interface MPBannerAdManager ()
 
-@property (nonatomic, retain) MPAdServerCommunicator *communicator;
-@property (nonatomic, retain) MPBaseBannerAdapter *onscreenAdapter;
-@property (nonatomic, retain) MPBaseBannerAdapter *requestingAdapter;
-@property (nonatomic, retain) UIView *requestingAdapterAdContentView;
-@property (nonatomic, retain) MPAdConfiguration *requestingConfiguration;
-@property (nonatomic, retain) MPTimer *refreshTimer;
+@property (nonatomic, strong) MPAdServerCommunicator *communicator;
+@property (nonatomic, strong) MPBaseBannerAdapter *onscreenAdapter;
+@property (nonatomic, strong) MPBaseBannerAdapter *requestingAdapter;
+@property (nonatomic, strong) UIView *requestingAdapterAdContentView;
+@property (nonatomic, strong) MPAdConfiguration *requestingConfiguration;
+@property (nonatomic, strong) MPTimer *refreshTimer;
 @property (nonatomic, assign) BOOL adActionInProgress;
 @property (nonatomic, assign) UIInterfaceOrientation currentOrientation;
 
@@ -64,20 +64,13 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 
     [self.communicator cancel];
-    self.communicator = nil;
 
     [self.refreshTimer invalidate];
-    self.refreshTimer = nil;
 
     [self.onscreenAdapter unregisterDelegate];
-    self.onscreenAdapter = nil;
 
     [self.requestingAdapter unregisterDelegate];
-    self.requestingAdapter = nil;
-    self.requestingAdapterAdContentView = nil;
-    self.requestingConfiguration = nil;
 
-    [super dealloc];
 }
 
 - (BOOL)loading
@@ -102,7 +95,7 @@
 
 - (void)loadAdWithURL:(NSURL *)URL
 {
-    URL = [[URL copy] autorelease]; //if this is the URL from the requestingConfiguration, it's about to die...
+    URL = [URL copy]; //if this is the URL from the requestingConfiguration, it's about to die...
     // Cancel the current request/requesting adapter
     self.requestingConfiguration = nil;
     [self.requestingAdapter unregisterDelegate];
