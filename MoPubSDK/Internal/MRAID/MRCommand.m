@@ -12,17 +12,19 @@
 #import "MPGlobal.h"
 #import "MPLogging.h"
 
+static NSMutableDictionary *sharedMap = nil;
 @implementation MRCommand
 
 @synthesize view = _view;
 @synthesize parameters = _parameters;
 
 + (NSMutableDictionary *)sharedCommandClassMap {
-    static NSMutableDictionary *sharedMap = nil;
-    @synchronized(self) {
-        if (!sharedMap) sharedMap = [[NSMutableDictionary alloc] init];
-    }
-    return sharedMap;
+	@autoreleasepool {
+		@synchronized(self) {
+			if (!sharedMap) sharedMap = [[NSMutableDictionary alloc] init];
+		}
+		return sharedMap;
+	}
 }
 
 + (void)registerCommand:(Class)commandClass {

@@ -1,4 +1,4 @@
-version = "1.12.0.1"
+version = "1.12.0.2"
 version_tag = "#{version}-OpenTable"
 
 Pod::Spec.new do |s|
@@ -25,8 +25,8 @@ Straight port to CocoaPod for MoPub library.
   
   s.header_dir = 'MoPubSDK'
 
-# the project is not arcified
-  s.requires_arc = false
+# the project is now arcified
+  s.requires_arc = true
 
 # pull in TouchJSON since it's needed
   s.dependency    'TouchJSON', '>= 1.0'
