@@ -1,4 +1,4 @@
-version = "1.12.0.2"
+version = "1.12.0.3"
 version_tag = "#{version}-OpenTable"
 
 Pod::Spec.new do |s|
@@ -21,7 +21,7 @@ Straight port to CocoaPod for MoPub library.
   s.source_files  = ["MoPubSDK/**/*.{h,m}"]
   
 # don't forget bundle and such
-  s.resources = 'MoPubSDK/Resources/*'
+  s.resources = ['MoPubSDK/Resources/*', 'MoPubSDK/**/*.xib']
   
   s.header_dir = 'MoPubSDK'
 
