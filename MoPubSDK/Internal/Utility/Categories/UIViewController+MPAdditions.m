@@ -46,20 +46,22 @@
         return;
     }
 #endif
-
+#if __IPHONE_OS_VERSION_MIN_REQUIRED <= __IPHONE_5_1
     [self presentModalViewController:modalViewController animated:animated];
+#endif
 }
 
 - (void)mp_dismissModalViewControllerAnimated:(BOOL)animated
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= MP_IOS_5_0
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
     if ([self respondsToSelector:@selector(dismissViewControllerAnimated:completion:)]) {
         [self dismissViewControllerAnimated:animated completion:nil];
         return;
     }
 #endif
-
+#if __IPHONE_OS_VERSION_MIN_REQUIRED <= __IPHONE_5_1
     [self dismissModalViewControllerAnimated:animated];
+#endif
 }
 
 @end
