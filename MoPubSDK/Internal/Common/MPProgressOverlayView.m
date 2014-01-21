@@ -169,8 +169,8 @@ static void exponentialDecayInterpolation(void *info, const float *input, float 
     
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     
-    static const float input_value_range[2] = {0, 1};
-    static const float output_value_range[8] = {0, 1, 0, 1, 0, 1, 0, 1};
+    static const CGFloat input_value_range[2] = {0, 1};
+    static const CGFloat output_value_range[8] = {0, 1, 0, 1, 0, 1, 0, 1};
     CGFunctionCallbacks callbacks = {0, exponentialDecayInterpolation, NULL};
     
     CGFunctionRef shadingFunction = CGFunctionCreate((__bridge void *)(self), 1, input_value_range, 4,
