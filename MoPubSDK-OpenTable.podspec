@@ -1,4 +1,4 @@
-version = "1.12.0.4"
+version = "1.12.0.5"
 version_tag = "#{version}-OpenTable"
 
 Pod::Spec.new do |s|
